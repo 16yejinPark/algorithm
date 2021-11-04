@@ -47,5 +47,6 @@ public class b1107 {
 			}
 		}
 		System.out.println(cnt);
+		
 	}
 }

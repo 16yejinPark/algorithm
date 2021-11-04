@@ -1,18 +1,23 @@
 package ssafy;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
+
 
 public class Test {
-	static ArrayList<ArrayList<Integer>> abs;
 	public static void main(String[] args){
-		System.out.println(args[0]);
+		List<String> list = new ArrayList<String>(); 
+		list.add("바계진");
+		list.add("바계진");
+		list.add("바계진");
+		list.add("이남수");
+		list.add("김근태");
+		list.add("윤설");	
 		
-		abs = new ArrayList<ArrayList<Integer>>();
-		for(int i=0;i<9;i++) {
-			abs.add(new ArrayList<Integer>());
-		}
-		int i=0;
-		abs.get(i).size();
+		Stream<String> listStream = list.stream();
+		listStream.parallel().distinct().filter((str)->(str.length()==3)).forEach(System.out::println);;
 	}
 }
+
 
