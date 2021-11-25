@@ -1,80 +1,89 @@
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 
 import java.util.*;
 import java.lang.Math;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 public class Main {
-	public static int solution(int n, int k) {
-        int answer = 0;
-
-        int len = 0;
-        while(true) {
-        	if(n>=Math.pow(k, len)) {
-        		len++;
-        	}else {
-        		break;
-        	}
-        }
-
-        int num=0;
-        int whole=n;
-        StringBuilder sb = new StringBuilder();
-        while(whole!=0) {
-        	len--;
-        	num= (int) (whole/Math.pow(k, len));
-        	whole -= Math.pow(k, len)*num;
-        	sb.append(num);
-        	num=0;
-
-        }
-        
-        //tokenize
-        String transformedNum = sb.toString();
-        sb.setLength(0);
-        List<String> numList = new ArrayList<>();
-
-        for(int i=0;i<transformedNum.length();i++) {
-        	if(transformedNum.charAt(i)!='0') {
-        		sb.append(transformedNum.charAt(i));
-        	}else if(transformedNum.charAt(i)=='0'&&sb.length()>0){
-        		numList.add(sb.toString());
-        		sb.setLength(0);
-        	}
-        }
-        
-        //마지막꺼 있으면 추가
-        if(sb.length()>0) {
-        	numList.add(sb.toString());
-        }
-        
-        //소수인지 판별
-        for(int i=0;i<numList.size();i++) {
-        	int prime = Integer.parseInt(numList.get(i));
-            boolean isPrime = true;
-        	for(int j=2;j<prime;j++) {
-        		if(prime%j==0) {
-        			isPrime = false;
-        			break;
-        		}
-        	}
-        	if(prime!=1&&isPrime==true) {
-        		answer++;
-        	}
-
-        }
- 
-        return answer;
-    }
-	public static void main(String[] args) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-		StringTokenizer st = null;
-
-		System.out.println(solution(110011,10));
-
+	
+	static int[] days = {0,31,28,31,30,31,30,31,31,30,31,30,31};
+	
+	public static int solution(String[] ledgers) {
+		Stack<int[]> s = new Stack<>();
+		int total = 0;
+		for(int i=0;i<ledgers.length;i++) {
+			String[] deal = ledgers[i].split(" ");
+			String[] date = deal[0].split("/");
+			int month = Integer.parseInt(date[0]);
+			int day = Integer.parseInt(date[1]);
+			int rate = Integer.parseInt(deal[1]);
+			int amount = Integer.parseInt(deal[2]);
+			
+			//입금
+			if(amount>0) {
+				s.add(new int[] {month,day,rate,amount});
+			}else {	//출금
+				amount *= -1;
+				while(amount > 0) {
+					System.out.println("amount: " +amount);
+					int temp[] = s.pop();
+					int bf_month = temp[0];
+					int bf_day = temp[1];
+					int bf_rate = temp[2];
+					int bf_amount = temp[3];
+					if(bf_amount > amount) {
+						total += getInterest(amount, bf_rate, getDateDiff(bf_month, bf_day,month,day));
+						s.push(new int[] {bf_month,bf_day,bf_rate,bf_amount-amount});
+						amount = 0;
+					}else {
+						total += getInterest(bf_amount, bf_rate, getDateDiff(bf_month, bf_day,month,day));
+						amount -= bf_amount;
+					}
+					
+				}
+			}
+			
+		}
+		
+		while(!s.isEmpty()) {
+			int temp[] = s.pop();
+			int bf_month = temp[0];
+			int bf_day = temp[1];
+			int bf_rate = temp[2];
+			int bf_amount = temp[3];
+			System.out.println(getInterest(bf_amount, bf_rate, getDateDiff(bf_month, bf_day,12,31)));
+			total += getInterest(bf_amount, bf_rate, getDateDiff(bf_month, bf_day,12,31));
+		}
+		
+		
+		return total;
+	}
+	
+	public static int getInterest(int amount, int rate, int period) {
+		return (int)((amount * rate/ 100.0)*(period/365.0));
+	}
+	
+	public static int getDateDiff(int m1,int d1,int m2,int d2) {
+		if(m1==m2) {
+			return d2-d1;
+		}
+		int result = days[m1]-d1;
+		m1++;
+		while(m1<m2) {
+			result+=days[m1];
+			m1++;
+		}
+		result+= d2;
+		return result;
+	}
+	
+	public static void main(String[] args) throws ParseException{
+		//System.out.println(getInterest(3555,6,21));
+		//System.out.println(getInterest(10000,4,72));
+	//System.out.println(getInterest(10000,4,getDateDiff(8,31,11,11)));
+		//System.out.println(getDateDiff(8,31,11,11));
+		
+		String[] input = {"04/01 1 40000", "05/01 5 20000","08/31 4 10000","11/11 0 -45000"};
+		System.out.println(solution(input));
 	}
 
 }
