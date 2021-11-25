@@ -18,6 +18,8 @@ public class b15684 {
 		M = Integer.parseInt(st.nextToken());	//가로선 개수
 		H = Integer.parseInt(st.nextToken());	//세로선마다 가로선을 놓을 수 있는 위치
 		
+		
+		
 	}
 		
 }
