@@ -1,4 +1,4 @@
-package baekjoon;
+package BaekJoon;
 
 //스티커
 public class b9465 {

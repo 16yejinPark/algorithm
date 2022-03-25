@@ -1,4 +1,4 @@
-package baekjoon;
+package BaekJoon;
 
 //1의 개수 세기
 public class b9527 {

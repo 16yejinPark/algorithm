@@ -1,4 +1,4 @@
-package baekjoon;
+package BaekJoon;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,79 +14,93 @@ import java.util.StringTokenizer;
 public class b6087 {
 	static int H;
 	static int W;
-	static int[] dx = {0,-1,1,0,0};
-	static int[] dy = {0,0,0,-1,1};
+	static int[] dx = {-1,0,1,0};
+	static int[] dy = {0,-1,0,1};
 	static char map[][];
+	static int mirror[][][];
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine());
 		W = Integer.parseInt(st.nextToken());
 		H = Integer.parseInt(st.nextToken());
-		
-		int startX=-1;
-		int startY=-1;
+	
+		int sx = 0;
+		int sy = 0;
 		map = new char[H][W];
-		for(int h=0;h<H;h++) {
-			map[h]=br.readLine().toCharArray();
-			if(startX==-1)
-				for(int w=0;w<W;w++) {
-					if(map[h][w]=='C') {
-						startX = h;
-						startY = w;
-					}
+		mirror = new int[H][W][4];
+		for(int i=0;i<H;i++) {
+			String line = br.readLine();
+			for(int j=0;j<W;j++) {
+				map[i][j] = line.charAt(j);
+				if(map[i][j]=='C') {
+					sx = i;
+					sy = j;
 				}
+			}
 		}
-		
-		//bfs
-		int[][] visited = new int[H][W];
-		for(int h=0;h<H;h++) {
-			for(int w=0;w<W;w++) {
-				visited[h][w]=1000000;
+
+		for(int i=0;i<H;i++) {
+			for(int j=0;j<W;j++) {
+				for(int k=0;k<4;k++) {
+					mirror[i][j][k] = 20000;
+				}
 			}
 		}
 		
-		System.out.println(bfs(startX,startY,visited));
+		bfs(sx,sy);
 	}
-	static int bfs(int h, int w,int[][] visited) {
-		PriorityQueue<int[]> q = new PriorityQueue<int[]>(new Comparator<int[]>() {
+	
+	static void bfs(int r, int c) {
+		PriorityQueue<int[]> q = new  PriorityQueue<>(new Comparator<int[]>() {
 			@Override
 			public int compare(int[] o1, int[] o2) {
-				return Integer.compare(visited[o1[0]][o1[1]], visited[o2[0]][o2[1]]);
+				return Integer.compare(mirror[o1[0]][o1[1]][o1[2]], mirror[o2[0]][o2[1]][o2[2]]);
 			}
 		});
-		q.add(new int[] {h,w,0});
-		visited[h][w]=0;
-		while(!q.isEmpty()) {
-
-			int[] temp = q.remove();
-			int x = temp[0];
-			int y = temp[1];
-			int d = temp[2];	//가고있는 방향	
-			
-			System.out.printf("%d %d %d %d\n",x,y,visited[x][y],d);		
-			if(!(x==h&&y==w)&&map[x][y]=='C') {
-				return visited[x][y];
-			}
-			
-			for(int nd=1;nd<=4;nd++) {
-				int nx = x + dx[nd];
-				int ny = y + dy[nd];
-				if(nx>=0&&nx<H&&ny>=0&&ny<W&&map[nx][ny]!='*') {
-					int nn = 0;
-					if(nd==d||d==0) {
-						nn=visited[x][y];
-					}else {
-						nn=visited[x][y]+1;
-					}
-						
-					if(visited[nx][ny]>=nn) {
-						visited[nx][ny]=nn;
-						q.add(new int[] {nx,ny,nd});
-					}
-					
-				}
+		int min = 20000;
+		for(int i=0;i<4;i++) {
+			mirror[r][c][i] = 0;
+			int nx = r + dx[i];
+			int ny = c + dy[i];
+			if(nx>=0&&nx<H&&ny>=0&&ny<W&&map[nx][ny]=='.') {
+				q.add(new int[] {nx,ny,i,0});
+				mirror[nx][ny][i] = 0;
 			}
 		}
-		return -1;
+		
+		while(!q.isEmpty()) {
+			
+			int temp[] = q.poll();
+			int x = temp[0];
+			int y = temp[1];
+			int d = temp[2];
+
+			//System.out.printf("%d %d %d => %d\n",x,y,d,mirror[x][y][d]);
+			for(int i=0;i<4;i++) {
+				if(Math.abs(d-i)==2) {
+					continue;
+				}else {
+					int nx = x + dx[i];
+					int ny = y + dy[i];
+					if(nx>=0&&nx<H&&ny>=0&&ny<W&&map[nx][ny]!='*') {
+						int nw = mirror[x][y][d];
+						if(d==i) {}
+						else {
+							nw++;
+						}
+						
+						if(mirror[nx][ny][i]>nw) {
+							mirror[nx][ny][i]=nw;
+							q.add(new int[] {nx,ny,i});
+							if(map[nx][ny]=='C'&&!(r==nx&&c==ny)) {
+								min = Math.min(min,nw);
+							}
+						}
+					}
+				}
+			}	
+		}
+		System.out.println(min);
+		return;
 	}
 }

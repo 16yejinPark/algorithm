@@ -1,4 +1,4 @@
-package baekjoon;
+package BaekJoon;
 
 //LCM(1,2,...,n)
 public class b11690 {

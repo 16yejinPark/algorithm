@@ -1,4 +1,4 @@
-package baekjoon;
+package BaekJoon;
 
 //하노이 탑
 public class b1914 {
