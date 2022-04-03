@@ -10,8 +10,8 @@ import java.util.StringTokenizer;
 
 //어항정리
 public class b23291 {
-	static int[] dx = {-1,1,0,0};
-	static int[] dy = {0,0,-1,1};
+	static int[] dx = {1,0};
+	static int[] dy = {0,1};
 	static Floor[] floors;
 	static int N;
 	static int K;
@@ -131,15 +131,13 @@ public class b23291 {
 		}
 		
 		int[][] temp = new int[n][n];
-		boolean[][] visited = new boolean[n][n];
 		for(int i=0;i<n;i++) {
 			for(int j=0;j<n;j++) {
-				visited[i][j]=true;
 				if(map[i][j]!=0) {
-					for(int d=0;d<4;d++) {
+					for(int d=0;d<2;d++) {
 						int nx = i + dx[d];
 						int ny = j + dy[d];
-						if(nx>=0&&nx<n&&ny>=0&&ny<n&&map[nx][ny]!=0&&!visited[nx][ny]&&Math.abs(map[nx][ny]-map[i][j])/5>0) {
+						if(nx>=0&&nx<n&&ny>=0&&ny<n&&map[nx][ny]!=0&&Math.abs(map[nx][ny]-map[i][j])/5>0) {
 							int num = Math.abs(map[nx][ny]-map[i][j])/5;
 							if(map[nx][ny]-map[i][j]>0) {
 								temp[i][j]+=num;
