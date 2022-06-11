@@ -10,220 +10,167 @@ import java.util.StringTokenizer;
 
 //어항정리
 public class b23291 {
-	static int[] dx = {1,0};
-	static int[] dy = {0,1};
-	static Floor[] floors;
-	static int N;
-	static int K;
-	
+	static int N, K;
+	static int[][] map;
+	static int[] dx = { 0, 1};
+	static int[] dy = { 1, 0};
+
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine());
-		
-		N = Integer.parseInt(st.nextToken());	//어항의 수
-		K = Integer.parseInt(st.nextToken());	//가장 많이 들어있는 어항과 가장 적게 들어있는 어항의 물고기 수 차이가 K 이하
+
+		N = Integer.parseInt(st.nextToken()); // 어항의 수
+		K = Integer.parseInt(st.nextToken()); // 가장 많이 들어있는 어항과 가장 적게 들어있는 어항의 물고기 수 차이가 K 이하
 		st = new StringTokenizer(br.readLine());
-		
-		boolean debug = true;
-		
-		floors = new Floor[N];
-		for(int i=0;i<N;i++) {
-			floors[i] = new Floor();
-			floors[0].list.addLast(Integer.parseInt(st.nextToken()));
+		map = new int[N + 1][N + 1];
+		for (int i = 1; i <= N; i++) {
+			map[N][i] = Integer.parseInt(st.nextToken());
 		}
 		
-		int t = 0;
+		int cnt = 0;
 		while(true) {
-			if(debug)
-			System.out.println("-------------------------------------------------------- "+t);
-			//1. 먼저, 물고기의 수가 가장 적은 어항에 물고기를 한 마리 넣는다.
-			int min = floors[0].getMin();
-			int size = floors[0].list.size();
-			for(int i=0;i<size;i++) {
-				int temp = floors[0].list.removeFirst();
-				if(temp==min)temp++;
-				floors[0].list.addLast(temp);
+			cnt++;
+			addFish();
+			roll();
+			fishControl();
+			putOneLine();
+			fly();
+			fishControl();
+			putOneLine();
+			int max = 0;
+			int min = Integer.MAX_VALUE;
+			for(int i=1;i<=N;i++) {
+				max = Math.max(max, map[N][i]);
+				min = Math.min(min, map[N][i]);
 			}
-
-			//2. 어항을 쌓는다. 
-			int x = 1;
-			int y = 1;
-			int nx = x;
-			int ny = y;
-			while(x <= floors[0].list.size()-y) {
-				x = nx;
-				y = ny;
-				
-				Floor[] deques = new Floor[x+1];
-				for(int i=0;i<=x;i++) {
-					deques[i] = new Floor();
-				}
-				
-				for(int i=x-1;i>0;i--) {
-					for(int j=0;j<y;j++) {
-						int temp = floors[j].list.removeFirst();
-						deques[i].list.addLast(temp);
-					}
-				}
-				
-				for(int i=x;i>0;i--) {
-					int s = deques[i].list.size();
-					for(int k=0;k<s;k++) {
-						int temp = deques[i].list.removeFirst();
-						floors[i].list.addLast(temp);
-					}
-					
-				}				
-				if(x==y) nx++;
-				else ny++;	
-			}
-			print(debug,x,"2단계 끝 ");
-
-			//3. 어항에 있는 물고기의 수를 조절한다. (동시에 발생함에 주의!)
-			controlFishes(floors[0].list.size());	
-			print(debug,x,"3단계 끝 ");
-			
-			//4. 다시 일렬로 놓는다.
-			setFlat(x,y);
-			print(debug,x,"4단계 끝 ");
-			
-			//5. 가운데를 중심으로 왼쪽 N/2개를 공중 부양시켜 전체를 시계 방향으로 180도 회전 시킨 다음, 오른쪽 N/2개의 위에 놓아야 한다. 이 작업은 두 번 반복해야한다.
-			for(int i=0;i<N/2;i++) {
-				floors[1].list.addFirst(floors[0].list.removeFirst());
-			}
-			print(debug,x,"4.5단계 끝 ");
-			
-			for(int i=0;i<2;i++) {
-				for(int j=0;j<N/4;j++) {
-					int temp = floors[i].list.removeFirst();
-					floors[4-1-i].list.addFirst(temp);
-				}
-			}
-			print(debug,x,"5단계 끝 ");
-			
-			//6. 어항에 있는 물고기의 수를 조절한다.	
-			controlFishes(Math.max(4,floors[0].list.size()));	
-			print(debug,x,"6단계 끝 ");
-			
-			//7. 다시 일렬로 놓는다.
-			setFlat(4,N/4);
-			print(debug,x,"7단계 끝 ");
-			
-			t++;
-			if(floors[0].getMax()-floors[0].getMin()<=K) {
+			if(max - min <= K) {
 				break;
 			}
-			
 		}
-		System.out.println(t);
+		System.out.println(cnt);
+	}
+	public static void roll() {
+		int startR = N;
+		int startC = 1;
+		int W = 1;
+		int H = 1;
+		int idx = 1;
+		int left = N-1;
+		while (true) {
+			int prevR = startR;
+			int prevC = startC;
+			
+			if(left < H) {
+				break;
+			}else {
+				left -= H;
+			}
+			
+			if (idx % 2 == 1) {
+				startR--;
+			}
+			startC += W;
+			
+			for (int x = 0; x < H; x++) {
+				for (int y = 0; y < W; y++) {
+					int nx = y;
+					int ny = H - x - 1;
+					map[startR + nx][startC + ny] = map[prevR + x][prevC + y];
+					map[prevR + x][prevC + y] = 0;
+				}
+			}
+			
+			if (idx % 2 == 1) {
+				H++;
+			} else {
+				W++;
+			}
+			idx++;		
+		}
 	}
 	
-	static void controlFishes(int n) {
-		
-		int[][] map = new int[n][n];
-		for(int i=0;i<n;i++) {
-			int s = floors[i].list.size();
-			for(int j=0;j<s;j++) {
-				int temp = floors[i].list.removeFirst();
-				map[n-i-1][j]=temp;
-				floors[i].list.addLast(temp);
-			}	
-		}
-		
-		int[][] temp = new int[n][n];
-		for(int i=0;i<n;i++) {
-			for(int j=0;j<n;j++) {
-				if(map[i][j]!=0) {
-					for(int d=0;d<2;d++) {
-						int nx = i + dx[d];
-						int ny = j + dy[d];
-						if(nx>=0&&nx<n&&ny>=0&&ny<n&&map[nx][ny]!=0&&Math.abs(map[nx][ny]-map[i][j])/5>0) {
-							int num = Math.abs(map[nx][ny]-map[i][j])/5;
-							if(map[nx][ny]-map[i][j]>0) {
-								temp[i][j]+=num;
-								temp[nx][ny]-=num;
-							}else {
-								temp[i][j]-=num;
-								temp[nx][ny]+=num;
-							}
+	public static void fishControl() {
+		int temp[][] = new int[N + 1][N + 1];
+		for(int i=1;i<=N;i++) {
+			for(int j=1;j<=N;j++) {
+				if(map[i][j]!=0)
+				for(int d=0;d<2;d++) {
+					int ni = i + dx[d];
+					int nj = j + dy[d];
+					if(ni>0&&ni<=N&&nj>0&&nj<=N&&map[ni][nj]!=0) {
+						int gap = Math.abs(map[i][j]-map[ni][nj])/5;
+						if(map[i][j]>map[ni][nj]) {
+							temp[i][j]-=gap;
+							temp[ni][nj]+=gap;
+						}else if(map[i][j]<map[ni][nj]) {
+							temp[i][j]+=gap;
+							temp[ni][nj]-=gap;
 						}
 					}
 				}
-			}	
-		}
-		
-		for(int i=0;i<n;i++) {
-			for(int j=0;j<n;j++) {
-				map[i][j] += temp[i][j];
 			}
 		}
-		
-		for(int i=0;i<n;i++) {
-			int s = floors[i].list.size();
-			for(int j=0;j<s;j++) {
-				floors[i].list.removeFirst();
-				floors[i].list.addLast(map[n-i-1][j]);
-			}	
-		}
-		
-		
+		sum(temp,map);
 	}
-	
-	static void setFlat(int x,int y) {
-		ArrayDeque<Integer> tempDeque = new ArrayDeque<Integer>();		
-		for(int i=0;i<y;i++) {
-			for(int j=0;j<x;j++) {
-				int temp = floors[j].list.removeFirst();
-				tempDeque.addLast(temp);
+	public static void addFish() {
+		int min = Integer.MAX_VALUE;
+		for(int i=1;i<=N;i++) {
+			for(int j=1;j<=N;j++) {
+				if(min>map[i][j]&&map[i][j]!=0) {
+					min=map[i][j];
+				}
 			}
 		}
-		int size = tempDeque.size();
-		for(int i=0;i<size;i++) {
-			int temp = tempDeque.removeLast();
-			floors[0].list.addFirst(temp);
+		for(int i=1;i<=N;i++) {
+			for(int j=1;j<=N;j++) {
+				if(min==map[i][j]) {
+					map[i][j]++;
+				}
+			}
 		}
 	}
-	
-	static void printDeque(ArrayDeque<Integer> deque) {
-		int sss = deque.size();
-		for(int i=0;i<sss;i++) {
-			int temp = deque.removeFirst();
-			System.out.printf("%5d ",temp);
-			deque.addLast(temp);
-		}System.out.println();
-	}
-	
-	static void print(boolean debug,int x,String memo) {
-		if(debug) {
-		memo+="///////////////";
-		System.out.println(memo);
-		for(int i=x;i>=0;i--) {
-			System.out.print(i+"| ");
-			printDeque(floors[i].list);
-		}}
-	}
-	
-	static class Floor{
-		ArrayDeque<Integer> list = new ArrayDeque<Integer>();
-		public int getMin() {
-			PriorityQueue<Integer> q = new PriorityQueue<>();
-			int size = list.size();
-			for(int i=0;i<size;i++) {
-				int temp = list.removeFirst();
-				q.add(temp);
-				list.addLast(temp);
+	public static void putOneLine() {
+		int temp[][] = new int[N + 1][N + 1];
+		int idx = 1;
+		for(int j=1;j<=N;j++) {
+			for(int i=N;i>=1;i--) {
+				if(map[i][j]!=0) {
+					temp[N][idx] = map[i][j];
+					idx++;
+				}
 			}
-			return q.remove();
 		}
-		public int getMax() {
-			PriorityQueue<Integer> q = new PriorityQueue<>(Collections.reverseOrder());
-			int size = list.size();
-			for(int i=0;i<size;i++) {
-				int temp = list.removeFirst();
-				q.add(temp);
-				list.addLast(temp);
+		copy(temp,map);
+	}
+	public static void fly() {
+		int temp[][] = new int[N + 1][N + 1];
+		for(int i=1;i<=N;i+=N/4) {
+			int no = (i-1)/(N/4)+1;
+			if(no%2==1) {
+				no = (no+2)%4;
+				for(int j=0;j<N/4;j++) {
+					temp[N-4+no][N/4-j] = map[N][i+j];
+				}
+			}else {
+				for(int j=0;j<N/4;j++) {
+					temp[N-4+no][j+1] = map[N][i+j];
+				}
 			}
-			return q.remove();
+		}
+		copy(temp,map);
+	}
+	public static void sum(int[][] from, int[][] to) {
+		for(int i=1;i<=N;i++) {
+			for(int j=1;j<=N;j++) {
+				to[i][j] += from[i][j];
+			}
+		}
+	}
+	public static void copy(int[][] from, int[][] to) {
+		for(int i=1;i<=N;i++) {
+			for(int j=1;j<=N;j++) {
+				to[i][j] = from[i][j];
+			}
 		}
 	}
 }
