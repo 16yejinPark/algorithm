@@ -18,39 +18,23 @@ public class b11501 {
 			
 			int N = Integer.parseInt(br.readLine());
 			int[] arr = new int[N];
-			int[] max = new int[N];
 			st = new StringTokenizer(br.readLine());
-			for(int i=0;i<N;i++) {
-				arr[i] = Integer.parseInt(st.nextToken());
-			}
 			
-			Stack<Integer> s = new Stack<>();
-			for(int i=N-1;i>=0;i--) {
-				while(!s.isEmpty()&&s.peek()<=arr[i]) {
-					s.pop();
-				}
-				if(s.isEmpty())
-					max[i] = arr[i];
-				else
-					max[i] = s.peek();
-				s.push(arr[i]);
-			}
-			
-			int cnt = 0;
 			long total = 0;
 			for(int i=0;i<N;i++) {
-				if(i==N-1) {
-					total += arr[i]*cnt;
-					break;
-				}
-				if(arr[i]<max[i]) {
-					cnt++;
-					total -= arr[i];
-				}else if(arr[i]==max[i]) {
-					total += arr[i]*cnt;
-					cnt = 0;
-				}
+				arr[i] = Integer.parseInt(st.nextToken());
+				total -= arr[i];
 			}
+			
+			
+			int memo = arr[N-1];
+			for(int i=N-1;i>=0;i--) {
+				if(memo<arr[i]) {
+					memo = arr[i];
+				}
+				total += memo;
+			}
+			
 			System.out.println(total);
 		}
 	}
