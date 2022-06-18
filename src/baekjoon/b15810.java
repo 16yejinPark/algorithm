@@ -25,12 +25,12 @@ public class b15810 {
 			max = Math.max(max, staffs[i]);
 		}
 		
-		long start = 0;
+		long start = 0L;
 		long end = (long)max*M;
 		while(start<=end) {
 			long mid = (start+end)/2;
 			System.out.printf("%d %d => %d\n",start,end,mid);
-			int total = 0;
+			long total = 0;
 			for(int staff:staffs) {
 				total += mid/staff;
 			}
@@ -39,7 +39,6 @@ public class b15810 {
 			else if(total>=M)
 				end = mid-1;
 		}
-		
 		System.out.println(start);
 	}
 }
