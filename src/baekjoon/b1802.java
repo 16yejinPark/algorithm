@@ -19,27 +19,23 @@ public class b1802 {
 				arr[i] = Integer.parseInt(temp[i]);
 			}
 			answer = true;
-			check(0,arr.length);
+			check(arr.length/2,arr.length);
 			System.out.println(answer?"YES":"NO");
 		}
 	}
 	
-	public static void check(int i,int n) {
-		
+	public static void check(int idx,int n) {
+		System.out.println(idx+" "+n);
 		if(!answer)return;
-
-		for(int x=0;x<n/2;x++) {
-			if(arr[i+x]+arr[i+n-x-1]!=1) {
+		if(idx==0) {
+			return;
+		}
+		for(int i=n-1,j=0;j<idx;i--,j++) {
+			if(arr[i]+arr[j]!=1) {
 				answer = false;
 				return;
 			}
 		}
-		
-		if(n<=1) {
-			return;
-		}
-		
-		check(i,n/2);
-		check(i+n/2,n/2);
+		check(idx/2,n/2);
 	}
 }
